@@ -37,6 +37,8 @@ class Environment(object):
         self.agent_states = OrderedDict()
         self.status_text = ""
 
+        self.trial = 0
+
         # Road network
         self.grid_size = (8, 6)  # (cols, rows)
         self.bounds = (1, 1, self.grid_size[0], self.grid_size[1])
@@ -72,9 +74,10 @@ class Environment(object):
         self.primary_agent = agent
         self.enforce_deadline = enforce_deadline
 
-    def reset(self):
+    def reset(self, trial=0):
         self.done = False
         self.t = 0
+        self.trial = trial
 
         # Reset traffic lights
         for traffic_light in self.intersections.itervalues():
@@ -115,14 +118,15 @@ class Environment(object):
 
         self.t += 1
         if self.primary_agent is not None:
-            agent_deadline = self.agent_states[self.primary_agent]['deadline']
+            agent_deadline = self.agent_states[self.primary_agent]['deadline'] - 1
+            self.agent_states[self.primary_agent]['deadline'] = agent_deadline
             if agent_deadline <= self.hard_time_limit:
                 self.done = True
                 print "Environment.step(): Primary agent hit hard time limit ({})! Trial aborted.".format(self.hard_time_limit)
             elif self.enforce_deadline and agent_deadline <= 0:
                 self.done = True
                 print "Environment.step(): Primary agent ran out of time! Trial aborted."
-            self.agent_states[self.primary_agent]['deadline'] = agent_deadline - 1
+            
 
     def sense(self, agent):
         assert agent in self.agent_states, "Unknown agent!"
@@ -205,7 +209,7 @@ class Environment(object):
                     reward += 10  # bonus
                 self.done = True
                 print "Environment.act(): Primary agent has reached destination!"  # [debug]
-            self.status_text = "state: {}\naction: {}\nreward: {}".format(agent.get_state(), action, reward)
+            self.status_text = "trial: {}\nstate: {}\naction: {}\nreward: {}".format(self.trial, agent.get_state(), action, reward)
             #print "Environment.act() [POST]: location: {}, heading: {}, action: {}, reward: {}".format(location, heading, action, reward)  # [debug]
 
         return reward

@@ -63,7 +63,11 @@ class Simulator(object):
         self.quit = False
         for trial in xrange(n_trials):
             print "Simulator.run(): Trial {}".format(trial)  # [debug]
-            self.env.reset()
+            self.env.reset(trial)
+
+            # For metrics gathering
+            if getattr(self, "observer", None): self.observer.notify(self.env, 'reset')
+
             self.current_time = 0.0
             self.last_updated = 0.0
             self.start_time = time.time()
@@ -83,7 +87,7 @@ class Simulator(object):
                                     self.quit = True
                                 elif event.unicode == u' ':
                                     self.paused = True
-
+                        # self.paused = True
                         if self.paused:
                             self.pause()
 
@@ -101,6 +105,9 @@ class Simulator(object):
                 finally:
                     if self.quit or self.env.done:
                         break
+
+            # For metrics gathering
+            if getattr(self, "observer", None): self.observer.notify(self.env, 'end_trial')
 
             if self.quit:
                 break
@@ -161,6 +168,7 @@ class Simulator(object):
         pause_text = "[PAUSED] Press any key to continue..."
         self.screen.blit(self.font.render(pause_text, True, self.colors['cyan'], self.bg_color), (100, self.height - 40))
         self.pygame.display.flip()
+        print self.env.primary_agent.Q_
         print pause_text  # [debug]
         while self.paused:
             for event in self.pygame.event.get():
