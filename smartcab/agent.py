@@ -127,16 +127,13 @@ class LearningAgent(Agent):
 
         # Merge similar states
         xsection = None
+        choose = lambda a, b, c: a if c else b
         if light == 'green':
-            if oncoming == 'forward':
-                xsection = 'green_busy'
-            else:
-                xsection = 'green_clear'
+            xsection = choose('green_busy', 'green_clear',
+                oncoming == 'forward')
         elif light == 'red':
-            if oncoming == 'left' or left == 'forward':
-                xsection = 'red_busy'
-            else:
-                xsection = 'red_clear'
+            xsection = choose('red_busy', 'red_clear',
+                oncoming == 'left' or left == 'forward')
 
         assert xsection in LearningAgent.INTERSECTION, "Invalid intersection!"
 
