@@ -67,7 +67,6 @@ class LearningAgent(Agent):
         super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
-        # TODO: Initialize any additional variables here
 
         self.Q_ = QTable(zip(['Intersection', 'Waypoint'],
                              [LearningAgent.INTERSECTION, LearningAgent.ACTIONS]),
@@ -88,7 +87,7 @@ class LearningAgent(Agent):
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
-        # TODO: Prepare for a new trip; reset any variables here, if required
+
         self._prev_state = None
         self._prev_action = None
         self._prev_reward = 0.0
@@ -100,16 +99,13 @@ class LearningAgent(Agent):
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
-        # TODO: Update state
         self.state = self._read_state(inputs['light'], inputs['oncoming'], inputs['left'], self.next_waypoint)
 
-        # TODO: Select action according to your policy
         action = self._pi(self.state)
 
         # Execute action and get reward
         reward = self.env.act(self, action)
 
-        # TODO: Learn policy based on state, action, reward
         if self._prev_state is not None:
             self._update_q(self._prev_state, self._prev_action, self._prev_reward, self.state)
         self._prev_state = self.state
