@@ -1,6 +1,6 @@
 # Train a Smartcab How to Drive
 
-Reinforcement Learning Project
+Simulated vehicle navigation agent with applied reinforcement learning.
 
 ## Install
 
